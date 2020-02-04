@@ -8,8 +8,11 @@ function setup() {
     length -= 4;
     createCanvas(length, length);
     length -= length / 7;
-    sudoku = new Sudoku;
+    let start = Date.now();
+    sudoku = new Sudoku(10);
     sudoku.generateBoard();
+    let end = Date.now();
+    console.log(end-start);
 }
 
 function draw() {
@@ -29,7 +32,7 @@ function mousePressed() {
                 sudoku.table[pressedButton.column-1][pressedButton.row-1] = i;
         }
         for (let j = 1; j <= 9; j++) {
-            if (mouseX > (i-1)*l + length/14 && mouseX < i*l + length / 14 + length/9 && mouseY > (j-1)*l + length / 28 && mouseY < j*l + length/28) {
+            if (mouseX > (i-1)*l + length/14 && mouseX < (i-1)*l + length / 14 + length/9 && mouseY > (j-1)*l + length / 28 && mouseY < j*l + length/28) {
                 pressedButton = { row: i, column: j };
             }    
         }
@@ -39,8 +42,10 @@ function mousePressed() {
 function keyPressed() {
     for(let i = 1; i <= 9; i++) {
         if (keyCode === 48 + i) {
-            if(sudoku.immutableTable[pressedButton.column-1][pressedButton.row-1] === 0)
-                sudoku.table[pressedButton.column-1][pressedButton.row-1] = i;
+            if(sudoku.immutableTable[pressedButton.column-1][pressedButton.row-1] === 0) {
+                if(sudoku.table[pressedButton.column-1][pressedButton.row-1] === i) sudoku.table[pressedButton.column-1][pressedButton.row-1] = 0;
+                else sudoku.table[pressedButton.column-1][pressedButton.row-1] = i;
+            }
         }
     }
 
