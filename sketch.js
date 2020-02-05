@@ -1,27 +1,41 @@
-let length;
-let pressedButton = { row: 1, column: 1 };
-let sudoku;
-let immutableTable;
+let length, pressedButton = { row: 1, column: 1 }, sudoku, immutableTable, difficulty, started = false, easy, medium, hard, expert;
 
 function setup() {
     length = windowWidth > windowHeight ? windowHeight : windowWidth;
     length -= 4;
     createCanvas(length, length);
     length -= length / 7;
-    let start = Date.now();
-    sudoku = new Sudoku(10);
-    sudoku.generateBoard();
-    let end = Date.now();
-    console.log(end-start);
+    easy = createButton("Easy");
+    medium = createButton("Medium");
+    hard = createButton("Hard");
+    expert = createButton("Expert");
+    [easy, medium, hard, expert].map((button, index) => {
+        button.position(length/2, length/2 - 60 + index * 40);
+        button.size(60, 25);
+        button.style("font-family","Comic Sans MS");
+        button.style("background-color","#00f");
+        button.style("color","#fff");
+        button.mousePressed(() => startGame(index));
+    })
 }
 
 function draw() {
     background(0);
     translate(length/14, length/28);
-    drawLines();
-    drawNumbers();
-    fillRect();
-    fillNumbers();
+    if(started) {
+        drawLines();
+        drawNumbers();
+        fillRect();
+        fillNumbers();
+    }
+}
+
+function startGame(difficulty) {
+    const difficulties = [43, 51, 56, 58];
+    sudoku = new Sudoku(difficulties[difficulty]);
+    sudoku.generateBoard();
+    started = true;
+    [easy, medium, hard, expert].map(button => button.remove());
 }
 
 function mousePressed() {

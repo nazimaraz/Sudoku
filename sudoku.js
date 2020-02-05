@@ -7,7 +7,7 @@ class Sudoku {
     }
 
     generateBoard() {
-        this.table = Array.from({length: 9}, () => (Array.from({length: 9}, () => 0)));
+        this.table = Array.from({length: 9}, () => Array(9).fill(0));
         this.makeBoard();
         this.removeNumbers();
     }
