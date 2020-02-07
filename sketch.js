@@ -1,10 +1,22 @@
-let length, pressedButton = { row: 1, column: 1 }, sudoku, immutableTable, difficulty, started = false, easy, medium, hard, expert;
+let length, pressedButton = { row: 1, column: 1 }, sudoku, immutableTable, difficulty, started = false, easy, medium, hard, expert, validColorMode, validColorModeButton;
+let colorModes = {
+    whiteMode: { background: 255, lineColor: 0, buttonRectColor: 0, buttonNumberColor: 255, immutableNumberColor: 0, tableNumberColor: 0 },
+    blackMode: { background: 0, lineColor: 255, buttonRectColor: 255, buttonNumberColor: 0, immutableNumberColor: 255, tableNumberColor: 255 }
+};
 
 function setup() {
     length = windowWidth > windowHeight ? windowHeight : windowWidth;
     length -= 4;
     createCanvas(length, length);
     length -= length / 7;
+    validColorMode = colorModes.blackMode;
+    validColorModeButton = createButton("Color Mode");
+    validColorModeButton.position(length/2, 140);
+    validColorModeButton.style("font-family","Comic Sans MS");
+    validColorModeButton.style("background-color","#00f");
+    validColorModeButton.style("color","#fff");
+    validColorModeButton.mousePressed(() => validColorMode = validColorMode === colorModes.blackMode ? colorModes.whiteMode : colorModes.blackMode);
+
     easy = createButton("Easy");
     medium = createButton("Medium");
     hard = createButton("Hard");
@@ -20,7 +32,7 @@ function setup() {
 }
 
 function draw() {
-    background(0);
+    background(validColorMode.background);
     translate(length/14, length/28);
     if(started) {
         drawLines();
@@ -35,15 +47,16 @@ function startGame(difficulty) {
     sudoku = new Sudoku(difficulties[difficulty]);
     sudoku.generateBoard();
     started = true;
-    [easy, medium, hard, expert].map(button => button.remove());
+    [easy, medium, hard, expert, validColorModeButton].map(button => button.remove());
 }
 
 function mousePressed() {
     const l = length / 9;
     for (let i = 1; i <= 9; i++) {
         if (mouseX >  length/14+length/99+(i-1)*l && mouseX < length/14+length/99+length/11+(i-1)*l && mouseY > length+length/56 && mouseY < length+56+length/11) {
-            if(sudoku.immutableTable[pressedButton.column-1][pressedButton.row-1] === 0)
-                sudoku.table[pressedButton.column-1][pressedButton.row-1] = i;
+            if(sudoku.immutableTable[pressedButton.column-1][pressedButton.row-1] === 0) {
+                sudoku.table[pressedButton.column-1][pressedButton.row-1] = sudoku.table[pressedButton.column-1][pressedButton.row-1] === i ? 0 : i;
+            }
         }
         for (let j = 1; j <= 9; j++) {
             if (mouseX > (i-1)*l + length/14 && mouseX < (i-1)*l + length / 14 + length/9 && mouseY > (j-1)*l + length / 28 && mouseY < j*l + length/28) {
@@ -57,8 +70,7 @@ function keyPressed() {
     for(let i = 1; i <= 9; i++) {
         if (keyCode === 48 + i) {
             if(sudoku.immutableTable[pressedButton.column-1][pressedButton.row-1] === 0) {
-                if(sudoku.table[pressedButton.column-1][pressedButton.row-1] === i) sudoku.table[pressedButton.column-1][pressedButton.row-1] = 0;
-                else sudoku.table[pressedButton.column-1][pressedButton.row-1] = i;
+                sudoku.table[pressedButton.column-1][pressedButton.row-1] = sudoku.table[pressedButton.column-1][pressedButton.row-1] === i ? 0 : i;
             }
         }
     }
@@ -77,11 +89,7 @@ function fillNumbers() {
     const l = length/18;
     for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
-            if (sudoku.immutableTable[i][j] === 0) {
-                fill(175);
-            } else {
-                fill(255);
-            }
+            sudoku.immutableTable[i][j] === 0 ? fill(135) : fill(validColorMode.tableNumberColor);
             textSize(3*length/44);
             const value = sudoku.table[i][j];
             if (value !== 0)
@@ -96,20 +104,18 @@ function fillRect() {
     rect((pressedButton.row - 1) * l, (pressedButton.column - 1) * l, l, l);
 }
 
-
 function drawNumbers() {
-    stroke(255);
     for (let i = 0; i <= 8; i++) {
-        fill(255);
+        fill(validColorMode.buttonRectColor);
         rect(i*length/9 + length / 99, length + length/56, length/11, length/11);
-        fill(0);
+        fill(validColorMode.buttonNumberColor);
         textSize(3*length/44);
         text((i+1).toString(), i*length/9+length/27, length+length/12);
     }
 }
 
 function drawLines() {
-    stroke(255);
+    stroke(validColorMode.lineColor);
     for (let i = 0; i <= 9; i++) {
         if (i === 0 || i === 3 || i === 6 || i === 9) strokeWeight(length/130);
         const l = i * length / 9;
